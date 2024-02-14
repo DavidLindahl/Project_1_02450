@@ -1,6 +1,6 @@
 # exercise 2.1.4
 # (requires data structures from ex. 2.2.1 and 2.2.3)
-from ex2_1_1 import *
+from dataloader import *
 from matplotlib.pyplot import figure, legend, plot, show, title, xlabel, ylabel
 from scipy.linalg import svd
 

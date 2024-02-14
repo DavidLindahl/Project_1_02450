@@ -23,7 +23,7 @@ To change what you want to plot against eachother, change i and j'''
 # Make another more fancy plot that includes legend, class labels,
 # attribute names, and a title.
 f = figure()
-title("NanoNose data")
+title("Kidney Stone Prediction data")
 C = len(attributeNames)
 for c in range(C):
     # select indices belonging to class c:

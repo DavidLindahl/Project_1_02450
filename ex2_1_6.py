@@ -1,6 +1,6 @@
 ## exercise 2.1.6
 import matplotlib.pyplot as plt
-from ex2_1_1 import *
+from dataloader import *
 from scipy.linalg import svd
 
 r = np.arange(1, X.shape[1] + 1)

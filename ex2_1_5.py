@@ -2,7 +2,7 @@
 
 # (requires data structures from ex. 2.2.1)
 import matplotlib.pyplot as plt
-from ex2_1_1 import *
+from dataloader import *
 from scipy.linalg import svd
 
 Y = X - np.ones((N, 1)) * X.mean(0)

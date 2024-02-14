@@ -25,21 +25,9 @@ for value in y:
     label = classDict.get(value)
     classLabels.append(label)
 
-C = len(classNames)
+C = len(attributeNames)
 
 
 print('data loaded')
 
-# Plot 1: Plotting calcium vs. cond:
-calc = X[:,5]
-conductivity = X[:,3]
-
-# Pynt
-plt.xlabel('Calcium // mg/ml')
-plt.ylabel('Conductivity // #indsæt værdi')
-plt.title('Conductivity vs. Calcium')
-
-# Plot
-plt.scatter(calc , conductivity)
-plt.show()
 
