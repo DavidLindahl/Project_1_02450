@@ -45,6 +45,6 @@ d == diag
 
 
 '''Question: How many components would be needed for 95% variance?'''
-sum(rho[:4])
-rho[:4]
-# Therefore we would need 4 components to explain 95% of the variance/meaning of the data.
+sum(rho[:1])
+rho[:1]
+# Therefore we would need 1 components to explain 95% of the variance/meaning of the data.

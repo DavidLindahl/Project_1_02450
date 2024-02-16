@@ -8,8 +8,8 @@ from matplotlib.pyplot import figure, legend, plot, show, title, xlabel, ylabel
 
 
 # Data attributes to be plotted
-i = 0
-j = 1
+i = 5
+j = 3
 
 ##
 # Make a simple plot of the i'th attribute against the j'th attribute
