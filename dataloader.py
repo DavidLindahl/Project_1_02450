@@ -25,7 +25,7 @@ for value in y:
     label = classDict.get(value)
     classLabels.append(label)
 
-C = len(attributeNames)
+C = len(classNames)
 
 
 print('data loaded')
