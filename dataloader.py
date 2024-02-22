@@ -8,8 +8,8 @@ filepath = os.path.join('kindey_stone_urine_analysis.csv')
 data = pd.read_csv(filepath)
 
 # Names our data and making y (our prediction variable)
-X = data.values
-y = X[:,-1]
+X = data.values[:,:-1]
+y = X[:-1]
 attributeNames = data.columns.values.tolist()
 
 # Making the variables from the book
@@ -27,6 +27,7 @@ for value in y:
 
 C = len(classNames)
 
+# data.describe()
 
 print('data loaded')
 

@@ -3,7 +3,7 @@
 For more plot inspiration:
 https://matplotlib.org/2.0.2/gallery.html'''
 # requires data from exercise 4.2.1
-from ex4_2_1 import *
+from dataloader import *
 from matplotlib.pyplot import (
     cm,
     colorbar,

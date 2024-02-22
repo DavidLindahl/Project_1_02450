@@ -4,7 +4,7 @@ This follows the same principles as a normal 2d plot.
 However, this is a 3d plot, where we plot 3 attributes in 1 plot.
 '''
 # requires data from exercise 4.1.1
-from ex4_2_1 import *
+from dataloader import *
 from matplotlib.pyplot import figure, show
 from mpl_toolkits.mplot3d import Axes3D
 
