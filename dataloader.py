@@ -9,8 +9,8 @@ data = pd.read_csv(filepath)
 
 # Names our data and making y (our prediction variable)
 X = data.values[:,:-1]
-y = X[:-1]
-attributeNames = data.columns.values.tolist()
+y = data.values[:,-1]
+attributeNames = data.columns.values.tolist()[:-1]
 
 # Making the variables from the book
 N = X.shape[0]

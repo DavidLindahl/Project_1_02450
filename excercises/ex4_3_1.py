@@ -2,10 +2,8 @@
 '''Boxplots and Histogrammes.
 If you run this you will get:
 * Boxplots for every attribute
-* Boxplots -||- Standardized
-* Histogram: This can be messy if there is outlier data. 
-* Outlier detection
-* Histogram after outlier detection'''
+* Boxplots for every attribute standardized
+* Histogram: This can be messy if there is outlier data. '''
 
 import importlib_resources
 import numpy as np
@@ -27,9 +25,13 @@ from dataloader import *
 
 # We start with a box plot of each attribute
 figure()
-title("Wine: Boxplot")
-boxplot(X)
-xticks(range(1, M + 1), attributeNames, rotation=45)
+title("Boxplots for very attribute")
+boxplot(X,
+        boxprops=dict(linestyle='-',linewidth=2, color='k'),
+        notch=True,  # notch shape
+        vert=True,   # vertical box aligmnent
+        patch_artist=True)
+xticks(range(1, M+2), attributeNames, rotation=45)
 
 # From this it is clear that there are some outliers in the Alcohol
 # attribute (10x10^14 is clearly not a proper value for alcohol content)
@@ -37,9 +39,9 @@ xticks(range(1, M + 1), attributeNames, rotation=45)
 # the axis is dominated by these extreme outliers. To avoid this, we plot a
 # box plot of standardized data (using the zscore function).
 figure(figsize=(12, 6))
-title("Wine: Boxplot (standarized)")
-boxplot(zscore(X, ddof=1), attributeNames)
-xticks(range(1, M + 1), attributeNames, rotation=45)
+title("Standardized boxplots for very attribute")
+boxplot(zscore(X, ddof=1), attributeNames , boxprops=dict(linestyle='-', linewidth=2, color='k'))
+xticks(range(1, M + 2), attributeNames, rotation=45)
 
 # This plot reveals that there are clearly some outliers in the Volatile
 # acidity, Density, and Alcohol attributes, i.e. attribute number 2, 8,
@@ -53,11 +55,11 @@ for i in range(M):
     subplot(int(u), int(v), i + 1)
     hist(X[:, i])
     xlabel(attributeNames[i])
-    ylim(0, N)  # Make the y-axes equal for improved readability
+    # ylim(0, N)  # Make the y-axes equal for improved readability
     if i % v != 0:
         yticks([])
     if i == 0:
-        title("Wine: Histogram")
+        title("Histogram for every attribute")
 
 
 # This confirms our belief about outliers in attributes 2, 8, and 11.
@@ -105,11 +107,11 @@ for i in range(M):
     subplot(int(u), int(v), i + 1)
     hist(X[:, i])
     xlabel(attributeNames[i])
-    ylim(0, N)  # Make the y-axes equal for improved readability
+    # ylim(0, N)  # Make the y-axes equal for improved readability
     if i % v != 0:
         yticks([])
     if i == 0:
-        title("Wine: Histogram (after outlier detection)")
+        title("Histogram for every attribute // After outlier detection")
 
 # This reveals no further outliers, and we conclude that all outliers have
 # been detected and removed.
