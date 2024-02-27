@@ -16,9 +16,10 @@ from matplotlib.pyplot import (
     xticks,
     ylabel,
     yticks,
+    grid
 )
 
-figure(figsize=(12, 10))
+figure(figsize=(14, 9))
 for m1 in range(M):
     for m2 in range(M):
         subplot(M, M, m1 * M + m2 + 1)
@@ -34,9 +35,9 @@ for m1 in range(M):
             else:
                 yticks([])
             # ylim(0,X.max()*1.1)
-            # xlim(0,X.max()*1.1)
-legend(classNames)
-
+            # xlim
+            # (0,X.max()*1.1)
+# legend(classNames)
 show()
 
 print("Ran Exercise 4.2.5")
