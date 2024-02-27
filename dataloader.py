@@ -27,7 +27,7 @@ for value in y:
 
 C = len(classNames)
 
-# data.describe()
+#data.describe()
 
 print('data loaded')
 
