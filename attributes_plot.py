@@ -16,7 +16,7 @@ from matplotlib.pyplot import (
     xticks,
     ylabel,
     yticks,
-    grid
+    title
 )
 
 figure(figsize=(14, 9))
@@ -38,6 +38,8 @@ for m1 in range(M):
             # xlim
             # (0,X.max()*1.1)
 # legend(classNames)
+title('Correlation of Attributes', y=1.05, size=15)
+
 show()
 
 print("Ran Exercise 4.2.5")
