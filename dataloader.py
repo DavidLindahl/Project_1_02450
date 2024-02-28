@@ -27,7 +27,8 @@ for value in y:
 
 C = len(classNames)
 
-#data.describe()
+sum_stats = data.describe()
+#sum_stats.to_csv('summary_statistics.csv')
 
 print('data loaded')
 
