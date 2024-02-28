@@ -7,7 +7,7 @@ import pandas as pd
 # Step 2: Prepare your data
 # Let's assume your data is in a variable named 'data'
 # data = ...
-file_path = '/Users/m.brochlips/Documents/2 MachLearn DATA/02450Toolbox_Python/Scripts/kindey stone urine analysis.csv'
+file_path = 'kindey_stone_urine_analysis.csv'
 data = pd.read_csv(file_path)
 
 X = data.drop('target', axis=1)
