@@ -3,11 +3,12 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
+import os
 
 # Step 2: Prepare your data
 # Let's assume your data is in a variable named 'data'
 # data = ...
-file_path = 'kindey_stone_urine_analysis.csv'
+file_path = os.path.join("kindey_stone_urine_analysis.csv")
 data = pd.read_csv(file_path)
 
 X = data.drop('target', axis=1)
