@@ -18,3 +18,8 @@ for i in range(M):
 show()
 
 print("Ran Exercise 4.2.2")
+
+
+def random():
+'''Function that gives a random decimal of pi within pi's first 100 decimals'''
+    ()
