@@ -2,7 +2,6 @@ from data_loader import st_X_class, y_class
 import numpy as np
 import sklearn.linear_model as lm
 from sklearn import model_selection
-from sklearn.metrics import mean_squared_error
 from scipy.stats import mode
 import torch
 import torch.nn as nn
@@ -14,7 +13,7 @@ def train_test_lr(model, train_data, test_data):
     model.fit(train_data[0], train_data[1].reshape(-1))
 
     predictions = model.predict(test_data[0])
-    return np.sum(predictions!=test_data[1].reshape(-1))/len(test_data[1])
+    return np.sum(predictions.reshape(-1)!=test_data[1].reshape(-1))/len(test_data[1])
 
 def train_ann(hidden_nodes, data):
     # ANN parameters
@@ -69,12 +68,13 @@ def test_ann(model, data):
     # Convert to NumPy array if needed (for further processing or evaluation)
     predictions_np = np.rint(np.array(predictions)).reshape(-1)
     # return np.sum(np.square(predictions_np - y_test_inner_tensor))
-    return np.sum(predictions_np != data[1].reshape(-1))
+    return np.sum(predictions_np.reshape(-1) != data[1].reshape(-1))/len(data[1].reshape(-1))
 
 def get_baseline(train_data, test_data):
-    avg = mode(train_data)
-    predictions = np.zeros(len(test_data)) + avg
-    return np.sum(predictions!=test_data[1].reshape(-1))/len(test_data[1])
+    avg = mode(train_data.reshape(-1))[0]
+    predictions = np.zeros(len(test_data.reshape(-1)))
+    predictions.fill(avg)
+    return np.sum(predictions.reshape(-1)!=test_data.reshape(-1))/len(test_data.reshape(-1))
 
 # initizialize the table
 table ="Outer fold,h,mse,alpha,mse,baseline\n"
@@ -109,7 +109,7 @@ length_of_outer_test_set = np.zeros(outer_k)
 
 
 # Prepare cross-validation (outer loop)
-outer_cv = model_selection.KFold(n_splits=outer_k, shuffle=True)
+outer_cv = model_selection.KFold(n_splits=outer_k, shuffle=False)
 
 # Outer Cross Validation
 for outer_fold, (train_index, test_index) in enumerate(outer_cv.split(st_X_class, y_class)):
@@ -120,7 +120,7 @@ for outer_fold, (train_index, test_index) in enumerate(outer_cv.split(st_X_class
     
     length_of_outer_test_set[outer_fold] = len(y_test_outer)
     
-    inner_cv = model_selection.KFold(n_splits=inner_k, shuffle=True)
+    inner_cv = model_selection.KFold(n_splits=inner_k, shuffle=False)
     
     for j, (train_index_inner, test_index_inner) in enumerate(inner_cv.split(X_train_outer, y_train_outer)):
         # create inner training and testing data
@@ -157,6 +157,6 @@ for outer_fold, (train_index, test_index) in enumerate(outer_cv.split(st_X_class
     
     outer_error_rate_lr[outer_fold] = train_test_lr(model=model_lr, train_data=(X_train_outer, y_train_outer), test_data=(X_test_outer, y_test_outer))
     baseline = get_baseline(train_data=y_train_outer, test_data=y_test_outer)
-    table += f"{outer_fold + 1},{best_nodes_number},{outer_error_rate_ann[outer_fold]},{best_alpha},{outer_error_rate_lr[outer_fold]},{baseline}\n"
+    table += f"{outer_fold + 1},{best_nodes_number},{round(outer_error_rate_ann[outer_fold], 2)},{round(best_alpha, 2)},{round(outer_error_rate_lr[outer_fold],2)},{round(baseline, 2)}\n"
 
 print(table)

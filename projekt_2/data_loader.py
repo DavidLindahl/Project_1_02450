@@ -9,6 +9,7 @@ import os
 # data = ...
 file_path = os.path.join("kindey_stone_urine_analysis.csv")
 data = pd.read_csv(file_path)
+data = data.sample(frac = 1)
 predicted_vaiable = "calc"
 X = data.drop([predicted_vaiable], axis=1)
 y_reg = data[predicted_vaiable]
