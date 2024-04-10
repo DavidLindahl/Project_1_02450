@@ -14,7 +14,7 @@ def train_test_lr(model, train_data, test_data):
 
     # Predict
     predictions = model.predict(test_data[0])
-    return mean_squared_error(predictions, test_data[1])
+    return mean_squared_error(predictions.reshape(-1), test_data[1].reshape(-1))
 
 def train_ann(hidden_nodes, data):
     # ANN parameters
@@ -72,9 +72,10 @@ def test_ann(model, data):
     return mean_squared_error(predictions_np, data[1])
 
 def get_baseline(train_data, test_data):
-    avg = np.average(train_data)
+    avg = np.mean(train_data)
     predictions = np.zeros(len(test_data)) + avg
-    return mean_squared_error(predictions, test_data)
+    print(mean_squared_error(predictions.reshape(-1), test_data.reshape(-1)))
+    return mean_squared_error(predictions.reshape(-1), test_data.reshape(-1))
 
 # initizialize the table
 table ="Outer fold,h,mse,alpha,mse,baseline\n"
@@ -85,7 +86,7 @@ outer_k = 10  # Outer K-fold
 inner_k = 10  # Inner K-fold for hyperparameter tuning
 
 # Alpha values
-alphas = np.linspace(0, 40, A) # aplha values used for regularization of linear model
+alphas = np.linspace(0, 20, A) # aplha values used for regularization of linear model
 
 # Store scores for each outer fold
 weighted_mse_estimate_ann = np.zeros(A)
@@ -109,7 +110,7 @@ length_of_outer_test_set = np.zeros(outer_k)
 
 
 # Prepare cross-validation (outer loop)
-outer_cv = model_selection.KFold(n_splits=outer_k, shuffle=True)
+outer_cv = model_selection.KFold(n_splits=outer_k, shuffle=False)
 
 # Outer Cross Validation
 for outer_fold, (train_index, test_index) in enumerate(outer_cv.split(st_X_reg, y_reg)):
@@ -120,7 +121,7 @@ for outer_fold, (train_index, test_index) in enumerate(outer_cv.split(st_X_reg, 
     
     length_of_outer_test_set[outer_fold] = len(y_test_outer)
     
-    inner_cv = model_selection.KFold(n_splits=inner_k, shuffle=True)
+    inner_cv = model_selection.KFold(n_splits=inner_k, shuffle=False)
     
     for j, (train_index_inner, test_index_inner) in enumerate(inner_cv.split(X_train_outer, y_train_outer)):
         # create inner training and testing data

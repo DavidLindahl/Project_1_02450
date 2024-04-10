@@ -10,15 +10,18 @@ import os
 file_path = os.path.join("kindey_stone_urine_analysis.csv")
 data = pd.read_csv(file_path)
 data = data.sample(frac = 1)
-predicted_vaiable = "calc"
+predicted_vaiable = "gravity"
 X = data.drop([predicted_vaiable], axis=1)
+X_reg = X
 y_reg = data[predicted_vaiable]
-
 y_reg = np.array(y_reg).reshape(-1, 1)
 scalar = StandardScaler()
 st_X_reg = scalar.fit_transform(X)
+st_y_reg = scalar.fit_transform(y_reg)
+y_reg = st_y_reg
 
 data = pd.read_csv(file_path)
+data = data.sample(frac = 1)
 X = data.drop(["target"], axis=1)
 y_class = data["target"]
 st_X_class = scalar.fit_transform(X)
