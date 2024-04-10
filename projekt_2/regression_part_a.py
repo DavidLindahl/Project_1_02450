@@ -5,9 +5,11 @@ from sklearn import model_selection
 from sklearn.metrics import mean_squared_error
 A = 100
 K = 10
+K = 10
 error_per_fold = np.zeros(K)
 error_per_aplha = np.zeros(A)
 i = 0
+CV = model_selection.KFold(K, shuffle=False)
 CV = model_selection.KFold(K, shuffle=False)
 for alpha in np.linspace(0, 40, A):
     j = 0
@@ -22,8 +24,7 @@ for alpha in np.linspace(0, 40, A):
 
         # Predict y
         y_est = model.predict(X_test)
-        error_per_fold[j] = np.sum(np.square(y_est.reshape(-1) - y_test.reshape(-1)))
-        
+        error_per_fold[j] = mean_squared_error(y_test, y_est)
         j += 1
     error_per_aplha[i] = np.sum(error_per_fold)
     i += 1
