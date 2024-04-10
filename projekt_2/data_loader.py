@@ -11,12 +11,16 @@ file_path = os.path.join("kindey_stone_urine_analysis.csv")
 data = pd.read_csv(file_path)
 predicted_vaiable = "calc"
 X = data.drop([predicted_vaiable], axis=1)
-y = data[predicted_vaiable]
+y_reg = data[predicted_vaiable]
 
-y = np.array(y).reshape(-1, 1)
-# It's important to standardize your data before applying PCA
-# scaler = StandardScaler()
-# standardized_data = scaler.fit_transform(data)
+y_reg = np.array(y_reg).reshape(-1, 1)
 scalar = StandardScaler()
-st_X = scalar.fit_transform(X)
-st_y = scalar.fit_transform(y)
+st_X_reg = scalar.fit_transform(X)
+
+data = pd.read_csv(file_path)
+X = data.drop(["target"], axis=1)
+y_class = data["target"]
+st_X_class = scalar.fit_transform(X)
+y_class = np.array(y_class).reshape(-1, 1)
+
+

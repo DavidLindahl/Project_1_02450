@@ -1,8 +1,9 @@
-from data_loader import st_X_reg, y_reg
+from data_loader import st_X_class, y_class
 import numpy as np
 import sklearn.linear_model as lm
 from sklearn import model_selection
 from sklearn.metrics import mean_squared_error
+from scipy.stats import mode
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,11 +11,10 @@ from torch.utils.data import DataLoader, TensorDataset
 
 def train_test_lr(model, train_data, test_data):
     # train model
-    model.fit(train_data[0], train_data[1])
+    model.fit(train_data[0], train_data[1].reshape(-1))
 
-    # Predict
     predictions = model.predict(test_data[0])
-    return mean_squared_error(predictions, test_data[1])
+    return np.sum(predictions!=test_data[1].reshape(-1))/len(test_data[1])
 
 def train_ann(hidden_nodes, data):
     # ANN parameters
@@ -28,7 +28,7 @@ def train_ann(hidden_nodes, data):
             torch.nn.Linear(M, hidden_nodes),  # M features to H hiden units
             torch.nn.ReLU(),  # torch.nn.ReLU(),
             torch.nn.Linear(hidden_nodes, 1),  # H hidden units to 1 output neuron
-            torch.nn.ReLU(),  # final tranfer function
+            torch.nn.Sigmoid(),  # final tranfer function
             )
             
     
@@ -67,14 +67,14 @@ def test_ann(model, data):
         predictions = model(X_test_inner_tensor)
 
     # Convert to NumPy array if needed (for further processing or evaluation)
-    predictions_np = predictions.numpy()
+    predictions_np = np.rint(np.array(predictions)).reshape(-1)
     # return np.sum(np.square(predictions_np - y_test_inner_tensor))
-    return mean_squared_error(predictions_np, data[1])
+    return np.sum(predictions_np != data[1].reshape(-1))
 
 def get_baseline(train_data, test_data):
-    avg = np.average(train_data)
+    avg = mode(train_data)
     predictions = np.zeros(len(test_data)) + avg
-    return mean_squared_error(predictions, test_data)
+    return np.sum(predictions!=test_data[1].reshape(-1))/len(test_data[1])
 
 # initizialize the table
 table ="Outer fold,h,mse,alpha,mse,baseline\n"
@@ -85,22 +85,22 @@ outer_k = 10  # Outer K-fold
 inner_k = 10  # Inner K-fold for hyperparameter tuning
 
 # Alpha values
-alphas = np.linspace(0, 40, A) # aplha values used for regularization of linear model
+alphas = np.linspace(0.001, 3, A) # aplha values used for regularization of linear model
 
 # Store scores for each outer fold
 weighted_mse_estimate_ann = np.zeros(A)
 weighted_mse_estimate_lr = np.zeros(A)
 weighted_estimate_baseline = np.zeros(A)
 
-outer_mse_lr = np.zeros(outer_k)
-outer_mse_ann = np.zeros(outer_k)
+outer_error_rate_lr = np.zeros(outer_k)
+outer_error_rate_ann = np.zeros(outer_k)
 outer_mse_baseline = np.zeros(outer_k)
 
 # Inner Cross Validation for ANN
-inner_mse_ann = np.zeros((A, inner_k))
+inner_error_rate_ann = np.zeros((A, inner_k))
 
 # Inner Cross Validation for linear regression
-inner_mse_lr = np.zeros((A, inner_k))
+inner_error_rate_lr = np.zeros((A, inner_k))
 
 # length of test sets
 length_of_inner_test_set = np.zeros(inner_k)
@@ -112,11 +112,11 @@ length_of_outer_test_set = np.zeros(outer_k)
 outer_cv = model_selection.KFold(n_splits=outer_k, shuffle=True)
 
 # Outer Cross Validation
-for outer_fold, (train_index, test_index) in enumerate(outer_cv.split(st_X_reg, y_reg)):
+for outer_fold, (train_index, test_index) in enumerate(outer_cv.split(st_X_class, y_class)):
     print(f"running outer fold {outer_fold+1}/{outer_k}...")
     # Split data
-    X_train_outer, X_test_outer = st_X_reg[train_index], st_X_reg[test_index]
-    y_train_outer, y_test_outer = y_reg[train_index], y_reg[test_index]
+    X_train_outer, X_test_outer = st_X_class[train_index], st_X_class[test_index]
+    y_train_outer, y_test_outer = y_class[train_index], y_class[test_index]
     
     length_of_outer_test_set[outer_fold] = len(y_test_outer)
     
@@ -129,34 +129,34 @@ for outer_fold, (train_index, test_index) in enumerate(outer_cv.split(st_X_reg, 
         length_of_inner_test_set[j] = len(y_test_inner)
         for i, alpha in enumerate(alphas):
             
-            model_lr = lm.Ridge(alpha=alpha)
+            model_lr = lm.LogisticRegression(penalty='l2', C=alpha, solver='lbfgs', max_iter=10000)
             
             # train ANN
             model_ann = train_ann(hidden_nodes=(i*2)+1, data=(X_train_inner, y_train_inner))
             
             # test ANN
-            inner_mse_ann[i, j] = test_ann(model=model_ann, data=(X_test_inner, y_test_inner))
+            inner_error_rate_ann[i, j] = test_ann(model=model_ann, data=(X_test_inner, y_test_inner))
         
             # train and test lr
-            inner_mse_lr[i, j] = train_test_lr(model=model_lr, train_data=(X_train_inner, y_train_inner), test_data=(X_test_inner, y_test_inner))
+            inner_error_rate_lr[i, j] = train_test_lr(model=model_lr, train_data=(X_train_inner, y_train_inner), test_data=(X_test_inner, y_test_inner))
         
     for c1 in range(A):
-        weighted_mse_estimate_ann[c1] = np.sum([(length_of_inner_test_set[c2] * inner_mse_ann[c1, c2])/len(y_test_outer) for c2 in range(inner_k)])
-        weighted_mse_estimate_lr[c1] = np.sum([(length_of_inner_test_set[c2] * inner_mse_lr[c1, c2])/len(y_test_outer) for c2 in range(inner_k)])
+        weighted_mse_estimate_ann[c1] = np.sum([(length_of_inner_test_set[c2] * inner_error_rate_ann[c1, c2])/len(y_test_outer) for c2 in range(inner_k)])
+        weighted_mse_estimate_lr[c1] = np.sum([(length_of_inner_test_set[c2] * inner_error_rate_lr[c1, c2])/len(y_test_outer) for c2 in range(inner_k)])
     
     # get the best aplha value and the best number of nodes in the network
     best_nodes_number = (np.argmin(weighted_mse_estimate_ann)*2) + 1
     best_alpha = alphas[np.argmin(weighted_mse_estimate_lr)]
     
     # create models based on best aplha value and the best number of nodes
-    model_lr = lm.Ridge(alpha=best_alpha)
+    model_lr = lm.LogisticRegression(penalty='l2', C=best_alpha, solver='lbfgs', max_iter=10000)
     
     # train and test models
     model_ann = train_ann(hidden_nodes=(i*2)+1, data=(X_train_outer, y_train_outer))
-    outer_mse_ann[outer_fold] = test_ann(model=model_ann, data=(X_test_outer, y_test_outer))
+    outer_error_rate_ann[outer_fold] = test_ann(model=model_ann, data=(X_test_outer, y_test_outer))
     
-    outer_mse_lr[outer_fold] = train_test_lr(model=model_lr, train_data=(X_train_outer, y_train_outer), test_data=(X_test_outer, y_test_outer))
+    outer_error_rate_lr[outer_fold] = train_test_lr(model=model_lr, train_data=(X_train_outer, y_train_outer), test_data=(X_test_outer, y_test_outer))
     baseline = get_baseline(train_data=y_train_outer, test_data=y_test_outer)
-    table += f"{outer_fold+1},{best_nodes_number},{round(outer_mse_ann[outer_fold], 2)},{round(best_alpha, 2)},{round(outer_mse_lr[outer_fold],2)},{round(baseline, 2)}\n"
+    table += f"{outer_fold + 1},{best_nodes_number},{outer_error_rate_ann[outer_fold]},{best_alpha},{outer_error_rate_lr[outer_fold]},{baseline}\n"
 
 print(table)
