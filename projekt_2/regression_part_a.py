@@ -43,3 +43,4 @@ model = lm.Ridge(alpha=best_alpha)
 model.fit(st_X_reg, y_reg)
 coefficients = model.coef_
 print(coefficients, X_reg.columns)
+print(model.intercept_)
