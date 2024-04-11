@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
+from scipy.stats import ttest_rel
 
 def train_test_lr(model, train_data, test_data):
     # train model
@@ -74,7 +75,6 @@ def test_ann(model, data):
 def get_baseline(train_data, test_data):
     avg = np.mean(train_data)
     predictions = np.zeros(len(test_data)) + avg
-    print(mean_squared_error(predictions.reshape(-1), test_data.reshape(-1)))
     return mean_squared_error(predictions.reshape(-1), test_data.reshape(-1))
 
 # initizialize the table
@@ -107,6 +107,10 @@ inner_mse_lr = np.zeros((A, inner_k))
 length_of_inner_test_set = np.zeros(inner_k)
 length_of_outer_test_set = np.zeros(outer_k)
 
+# data for t test
+t_test_data_lr = np.zeros(inner_k*outer_k)
+t_test_data_ann = np.zeros(inner_k*outer_k)
+t_test_data_baseline = np.zeros(inner_k*outer_k)
 
 
 # Prepare cross-validation (outer loop)
@@ -140,6 +144,10 @@ for outer_fold, (train_index, test_index) in enumerate(outer_cv.split(st_X_reg, 
         
             # train and test lr
             inner_mse_lr[i, j] = train_test_lr(model=model_lr, train_data=(X_train_inner, y_train_inner), test_data=(X_test_inner, y_test_inner))
+        t_test_data_lr[outer_fold*outer_k + j] = np.min(inner_mse_lr[:, j])
+        t_test_data_ann[outer_fold*outer_k + j] = np.min(inner_mse_ann[:, j])
+        temp = get_baseline(y_train_inner, y_test_inner)
+        t_test_data_baseline[outer_fold*outer_k + j] = temp
         
     for c1 in range(A):
         weighted_mse_estimate_ann[c1] = np.sum([(length_of_inner_test_set[c2] * inner_mse_ann[c1, c2])/len(y_test_outer) for c2 in range(inner_k)])
@@ -160,4 +168,11 @@ for outer_fold, (train_index, test_index) in enumerate(outer_cv.split(st_X_reg, 
     baseline = get_baseline(train_data=y_train_outer, test_data=y_test_outer)
     table += f"{outer_fold+1},{best_nodes_number},{round(outer_mse_ann[outer_fold], 2)},{round(best_alpha, 2)},{round(outer_mse_lr[outer_fold],2)},{round(baseline, 2)}\n"
 
-print(table)
+#print(table)
+print("ann_minus_lr mean:", np.mean(t_test_data_ann-t_test_data_lr), "sd", np.std(t_test_data_ann-t_test_data_lr))
+print("ann_minus_baseline mean:", np.mean(t_test_data_ann-t_test_data_baseline), "sd", np.std(t_test_data_ann-t_test_data_baseline))
+print("lr_minus_baseline mean", np.mean(t_test_data_lr-t_test_data_baseline), "sd", np.std(t_test_data_lr-t_test_data_baseline))
+print("ann_data:\n", t_test_data_ann)
+print("lr_data:\n", t_test_data_lr)
+print("base_data:\n", t_test_data_baseline)
+print(ttest_rel(t_test_data_ann, t_test_data_lr), ttest_rel(t_test_data_ann, t_test_data_baseline), ttest_rel(t_test_data_baseline, t_test_data_lr))
