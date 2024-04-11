@@ -5,6 +5,7 @@ from sklearn import model_selection
 from sklearn.metrics import mean_squared_error
 A = 100
 K = 10
+plt.rcParams['text.usetex'] = True
 error_per_fold = np.zeros(K)
 error_per_aplha = np.zeros(A)
 i = 0
@@ -30,8 +31,8 @@ for alpha in np.linspace(0, 20, A):
 # Display scatter plot
 plt.figure()
 plt.plot(np.linspace(0, 20, A), error_per_aplha, ".-")
-plt.xlabel(f"alpha")
-plt.ylabel(f"mse")
+plt.xlabel(f"$\lambda$")
+plt.ylabel(f"Mean squared error")
 plt.savefig("projekt_2/plots/error_per_alpha.png")
 plt.show()
 
